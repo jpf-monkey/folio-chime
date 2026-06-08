@@ -408,7 +408,15 @@ function NotificacionesPage() {
   );
 }
 
-function NotificationCard({ n }: { n: Notification }) {
+function NotificationCard({
+  n,
+  selected,
+  onToggleSelect,
+}: {
+  n: Notification;
+  selected: boolean;
+  onToggleSelect: () => void;
+}) {
   const meta = SEVERITY_META[n.severity];
   const Icon = meta.Icon;
 
@@ -421,6 +429,13 @@ function NotificationCard({ n }: { n: Notification }) {
       )}
     >
       <div className="flex gap-4">
+        <Checkbox
+          checked={selected}
+          onCheckedChange={onToggleSelect}
+          aria-label={`Seleccionar notificación: ${n.title}`}
+          className="shrink-0 mt-2"
+        />
+
         <div
           className={cn(
             "shrink-0 h-10 w-10 rounded-full flex items-center justify-center",
