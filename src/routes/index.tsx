@@ -11,6 +11,7 @@ import {
   FileText,
   Send,
   Plus,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
@@ -185,6 +187,7 @@ function NotificacionesPage() {
   const [doc, setDoc] = useState("Todos");
   const [sev, setSev] = useState<"todos" | Severity>("todos");
   const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
     return items.filter((n) => {
@@ -202,10 +205,43 @@ function NotificacionesPage() {
     });
   }, [items, doc, sev, query]);
 
+  const filteredIds = useMemo(() => new Set(filtered.map((n) => n.id)), [filtered]);
+  const selectedFilteredCount = useMemo(
+    () => [...selected].filter((id) => filteredIds.has(id)).length,
+    [selected, filteredIds],
+  );
+  const allFilteredSelected = filtered.length > 0 && selectedFilteredCount === filtered.length;
+
   const unread = items.filter((i) => !i.read).length;
 
   const markAllRead = () =>
     setItems((prev) => prev.map((i) => ({ ...i, read: true })));
+
+  const toggleSelect = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allFilteredSelected) {
+        filtered.forEach((n) => next.delete(n.id));
+      } else {
+        filtered.forEach((n) => next.add(n.id));
+      }
+      return next;
+    });
+  };
+
+  const deleteSelected = () => {
+    setItems((prev) => prev.filter((i) => !selected.has(i.id)));
+    setSelected(new Set());
+  };
 
   return (
     <main className="min-h-screen bg-background">
@@ -317,6 +353,37 @@ function NotificacionesPage() {
           </div>
         </section>
 
+        {/* Selection bar */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="select-all"
+              checked={allFilteredSelected}
+              onCheckedChange={toggleSelectAll}
+              aria-label="Seleccionar todas las notificaciones visibles"
+            />
+            <label htmlFor="select-all" className="text-sm text-muted-foreground cursor-pointer select-none">
+              Seleccionar todas
+            </label>
+          </div>
+          {selectedFilteredCount > 0 && (
+            <>
+              <span className="text-xs text-muted-foreground">
+                {selectedFilteredCount} seleccionada{selectedFilteredCount === 1 ? "" : "s"}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={deleteSelected}
+                className="border-destructive/40 text-destructive hover:bg-destructive/5 hover:text-destructive gap-2 ml-auto"
+              >
+                <Trash2 className="h-4 w-4" />
+                Eliminar
+              </Button>
+            </>
+          )}
+        </div>
+
         {/* Notification list */}
         <section className="space-y-3">
           {filtered.length === 0 ? (
@@ -326,7 +393,14 @@ function NotificacionesPage() {
               </p>
             </div>
           ) : (
-            filtered.map((n) => <NotificationCard key={n.id} n={n} />)
+            filtered.map((n) => (
+              <NotificationCard
+                key={n.id}
+                n={n}
+                selected={selected.has(n.id)}
+                onToggleSelect={() => toggleSelect(n.id)}
+              />
+            ))
           )}
         </section>
       </div>
@@ -334,7 +408,15 @@ function NotificacionesPage() {
   );
 }
 
-function NotificationCard({ n }: { n: Notification }) {
+function NotificationCard({
+  n,
+  selected,
+  onToggleSelect,
+}: {
+  n: Notification;
+  selected: boolean;
+  onToggleSelect: () => void;
+}) {
   const meta = SEVERITY_META[n.severity];
   const Icon = meta.Icon;
 
@@ -347,6 +429,13 @@ function NotificationCard({ n }: { n: Notification }) {
       )}
     >
       <div className="flex gap-4">
+        <Checkbox
+          checked={selected}
+          onCheckedChange={onToggleSelect}
+          aria-label={`Seleccionar notificación: ${n.title}`}
+          className="shrink-0 mt-2"
+        />
+
         <div
           className={cn(
             "shrink-0 h-10 w-10 rounded-full flex items-center justify-center",
