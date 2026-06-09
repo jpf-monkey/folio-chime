@@ -1,6 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { ChevronUp, Mail, X, Plus } from "lucide-react";
+
+const TABS = ["Facturadores", "Rangos Primarios", "Umbrales para Recarga", "Notificaciones", "Configuraciones"];
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
