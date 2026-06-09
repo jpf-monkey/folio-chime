@@ -66,6 +66,58 @@ function ConfiguracionPage() {
 
   return (
     <main className="min-h-screen bg-background">
+      <div className="mx-auto max-w-7xl px-6 pt-6">
+        <nav
+          aria-label="Secciones"
+          className="flex items-center gap-8 border-b border-border bg-panel/60 rounded-t-lg px-4"
+        >
+          {TABS.map((t) => {
+            const active = t === "Configuraciones";
+            if (t === "Notificaciones") {
+              return (
+                <Link
+                  key={t}
+                  to="/"
+                  className={cn(
+                    "relative py-4 text-sm font-semibold transition-colors",
+                    active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {t}
+                </Link>
+              );
+            }
+            if (t === "Configuraciones") {
+              return (
+                <Link
+                  key={t}
+                  to="/configuracion"
+                  className={cn(
+                    "relative py-4 text-sm font-semibold transition-colors",
+                    active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {t}
+                  {active && (
+                    <span className="absolute inset-x-0 -bottom-px h-0.5 bg-primary rounded-full" />
+                  )}
+                </Link>
+              );
+            }
+            return (
+              <button
+                key={t}
+                className={cn(
+                  "relative py-4 text-sm font-semibold transition-colors",
+                  active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {t}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
       <div className="mx-auto max-w-7xl px-6 py-8 flex flex-col gap-6">
         <header>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
