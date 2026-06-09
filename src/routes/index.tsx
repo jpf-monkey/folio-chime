@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -180,7 +180,7 @@ const DOC_TYPES = [
   "Boleta afecta (39)",
 ];
 
-const TABS = ["Facturadores", "Rangos Primarios", "Umbrales para Recarga", "Notificaciones"];
+const TABS = ["Facturadores", "Rangos Primarios", "Umbrales para Recarga", "Notificaciones", "Configuraciones"];
 
 function NotificacionesPage() {
   const [items, setItems] = useState<Notification[]>(MOCK);
@@ -253,6 +253,20 @@ function NotificacionesPage() {
         >
           {TABS.map((t) => {
             const active = t === "Notificaciones";
+            if (t === "Configuraciones") {
+              return (
+                <Link
+                  key={t}
+                  to="/configuracion"
+                  className={cn(
+                    "relative py-4 text-sm font-semibold transition-colors",
+                    active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  {t}
+                </Link>
+              );
+            }
             return (
               <button
                 key={t}
